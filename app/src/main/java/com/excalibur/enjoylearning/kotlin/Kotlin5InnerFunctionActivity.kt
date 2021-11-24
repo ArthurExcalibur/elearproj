@@ -15,6 +15,12 @@ class Kotlin5InnerFunctionActivity : AppCompatActivity() {
         aboutApplyFunction()                //内置Apply函数（返回对象本身）(内部持有this，即对象本身）
         aboutLetFunction()                  //内置let函数（返回匿名函数的最后一行）（内部持有it，即对象本身）
         aboutRunFunction()                  //内置run函数（返回匿名函数的最后一行）（内部持有this，即对象本身）
+        aboutWithFunction()                 //内置with函数（返回匿名函数的最后一行）（内部持有this，即对象本身）
+                                                //和run特性相同，但调用方式不同：str.run{} with(str){}
+                                                //str.run(::runNamedFunction) with(str,::runNamedFunction)
+        aboutAlsoFunction()                 //内置also函数（返回对象本身）（内部持有it，即对象本身）
+        aboutTakeIfFunction()               //内置takeif函数（返回对象本身或者null）（内部持有it，即对象本身）
+        aboutTakeUnlessFunction()           //内置takeunless函数（返回null或者对象本身）（内部持有it，即对象本身）
     }
 
     private fun aboutSafeTransfer() {
@@ -96,4 +102,48 @@ class Kotlin5InnerFunctionActivity : AppCompatActivity() {
     }
     private fun runNamedFunction(str : String) = str.length > 3
     private fun runNamedFunction1(b : Boolean) = if(b) "合格" else "不合格"
+
+    private fun aboutWithFunction(){
+        val info = "Nagisa"
+        val n = with(with(info){
+            length > 3
+        }){
+            if(this) "合格" else "不合格"
+        }
+        val n1 = with(with(info, ::runNamedFunction), ::runNamedFunction1)
+    }
+
+    private fun aboutAlsoFunction(){
+        val info = "Nagisa"
+        val res = info.also {
+            it.length > 3
+        }.also {
+            println(it)
+        }
+        println(res)//还是Nagisa
+    }
+
+    private fun aboutTakeIfFunction(){
+        val info = "Nagisa"
+        //返回值是String？类型
+        val res : String? = info.takeIf {
+            it.length > 3   //最后一行必须是一个Boolean类型，为true则返回info本身，false返回null
+        }
+        //一般搭配？：使用，这样就返回String类型
+        val result : String = info.takeIf {
+            it.length > 3
+        } ?: "Kikyo"
+    }
+
+    private fun aboutTakeUnlessFunction(){
+        val info = "Nagisa"
+        val res = info.takeUnless {
+//            it.isNullOrBlank()
+            it.length > 3   //最后一行必须是一个Boolean类型，为true则返回null，false返回info本身（和takeIf相反）
+        }
+        val result : String = info.takeIf {
+            it.length > 3
+        } ?: "Kikyo"
+    }
+
 }
