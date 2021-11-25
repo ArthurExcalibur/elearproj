@@ -19,6 +19,7 @@ class Kotlin7ClassActivity : AppCompatActivity() {
         aboutInitCodeArea()                         //init代码块
         aboutConstructorOrder()                     //构造方法初始化顺序
         aboutLateinit()                             //延时初始化
+        aboutLazyinit()                             //惰性初始化
     }
 
     private fun aboutClassAndFiled(){
@@ -62,6 +63,13 @@ class Kotlin7ClassActivity : AppCompatActivity() {
 
     private fun aboutLateinit(){
         ClassKt8().showName()
+    }
+
+    private fun aboutLazyinit(){
+        val p = ClassKt9()
+        Thread.sleep(5000)
+        println(p.initName)//睡眠之前initNameValue就已经被调用了（类初始化的时候）
+        println(p.lazyName)//睡眠之后，真正用到（println(p.lazyName)）时才会调用initNameValue赋值
     }
 
 }
@@ -228,15 +236,11 @@ class ClassKt8(){
 
 //惰性加载
 class ClassKt9(){
-    lateinit var name: String
+    val initName = initNameValue()
+    val lazyName by lazy{ initNameValue() }
 
-    fun showName(){
-        //如果未初始化，即使判空都会抛出异常
-        //if(name == null)
-        //用::name.isInitialized判断是否初始化
-        if(::name.isInitialized){
-            println(name)
-        }
+    private fun initNameValue() : String{
+        return ""
     }
 
 }
