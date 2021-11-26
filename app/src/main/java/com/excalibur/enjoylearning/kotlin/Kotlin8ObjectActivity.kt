@@ -17,6 +17,10 @@ class Kotlin8ObjectActivity : AppCompatActivity() {
         aboutAssociatedObject()         //伴生对象
         aboutInnerClass()               //嵌套类和内部类
         aboutDataClass()                //数据类
+        aboutOperatorOverloading()      //运算符重载
+        aboutEnum()                     //枚举类
+        aboutEnumAlgebra()              //代数数据类型
+        aboutSealedClass()              //密封类
     }
 
     private fun aboutExtends(){
@@ -124,6 +128,41 @@ class Kotlin8ObjectActivity : AppCompatActivity() {
         //普通类和数据类解构
         val (msg,code,data) = ObjectClassKt6Usual("",200,"")
         val (_,code1,data1) = ObjectClassKt6("",200,"")
+
+        //使用场景（条件）
+        //1.服务器请求返回的数据（JavaBean）
+        //2.数据类至少必须有一个参数的主构造
+        //3.数据类必须有参数（var val 的参数）
+        //4.数据类不能使用abstract open sealed inner等修饰（只做数据处理，不做其余工作）
+        //5.需求比较，copy，tostring，解构等这些功能时，也可使用数据类
+    }
+
+    private fun aboutOperatorOverloading(){
+        val obj : ObjectClassKt7 = ObjectClassKt7(1) + ObjectClassKt7(2)
+        println(obj.number)
+    }
+
+    private fun aboutEnum(){
+        println(ObjectClassKt8.Fir)
+        println(ObjectClassKt8.Mon)
+        //枚举的值等于枚举本身
+        println(ObjectClassKt8.Fir is ObjectClassKt8)//true
+
+        ObjectClassKt8.Mon.show()
+
+        ObjectClassKt8.Mon.update(ObjectClassKt8Info("",1))
+    }
+
+    private fun aboutEnumAlgebra(){
+        println(WeekDay(ObjectClassKt9.Mon).show())
+    }
+
+    private fun aboutSealedClass(){
+        println(NewWeekDay(ObjectClassKt10.Mon).show())
+        println(NewWeekDay(ObjectClassKt10.Thu("name")).show())
+
+        println(ObjectClassKt10.Mon === ObjectClassKt10.Mon)//true（object修饰的，单例）
+        println(ObjectClassKt10.Thu("name") === ObjectClassKt10.Thu("name"))//false（class修饰的，非单例）
     }
 
 }
@@ -212,5 +251,68 @@ data class ObjectClassKt6(var msg: String,var code : Int,var data : String){
     var coreInfo : String = ""
     constructor(msg: String) : this(msg,200,""){
         coreInfo = "coreInfo"
+    }
+}
+
+class ObjectClassKt7(var number: Int){
+    operator fun plus(k : ObjectClassKt7) : ObjectClassKt7{
+        return ObjectClassKt7(k.number + number)
+    }
+    //查看所有可重载的运算符
+    //operator fun ObjectClassKt7.
+}
+
+//枚举类定义函数（加了这个之后枚举内部定义值就必须带上它）
+class ObjectClassKt8Info(val info: String, val length : Int){
+    fun show() = println("msg : $info,length : $length")
+}
+//枚举的主构造参数必须和枚举的参数保持一致
+enum class ObjectClassKt8(private var info: ObjectClassKt8Info){
+    Mon(ObjectClassKt8Info("",1)),
+    Fir(ObjectClassKt8Info("",5));
+
+    fun show() = println("msg : ${info.info},length : ${info.length}")
+    fun update(newInfo: ObjectClassKt8Info){
+        info = newInfo
+    }
+}
+
+enum class ObjectClassKt9(){
+    Mon,
+    Tue,
+    Wed,
+    Thu,
+    Fri,
+    Sat,
+    Sun;
+}
+class WeekDay(private val enum : ObjectClassKt9){
+    fun show() = when(enum){
+        ObjectClassKt9.Mon -> "星期一"
+        ObjectClassKt9.Tue -> "星期二"
+        ObjectClassKt9.Wed -> "星期三"
+        ObjectClassKt9.Thu -> "星期四"
+        ObjectClassKt9.Fri -> "星期五"
+        ObjectClassKt9.Sat -> "星期六"
+        ObjectClassKt9.Sun -> "星期日"
+        //else -> ""
+        //使用枚举类型做when判断，属于代数数据类型，不需要写else（把枚举的所有分支都写了）
+    }
+}
+
+//密封类，以sealed关键字开头
+sealed class ObjectClassKt10{
+    //成员必须有类型（object，class），且必须继承本类ObjectClassKt10
+    object Mon : ObjectClassKt10()
+    object Tue : ObjectClassKt10()
+    object Wed : ObjectClassKt10()
+    class Thu(val weekName : String) : ObjectClassKt10()
+}
+class NewWeekDay(private val enum : ObjectClassKt10){
+    fun show() = when(enum){
+        is ObjectClassKt10.Mon -> "星期一"
+        is ObjectClassKt10.Tue -> "星期二"
+        is ObjectClassKt10.Wed -> "星期三"
+        is ObjectClassKt10.Thu -> "星期四，附带名字是:${this.enum.weekName}"
     }
 }
