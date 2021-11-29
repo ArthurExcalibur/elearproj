@@ -3,6 +3,7 @@ package com.excalibur.enjoylearning.kotlin
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
+//TODO kotlin中的接口和抽象类
 class Kotlin9InterfaceActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
