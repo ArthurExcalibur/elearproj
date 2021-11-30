@@ -3,6 +3,9 @@ package com.excalibur.enjoylearning.kotlin
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
+import com.excalibur.enjoylearning.kotlin.extension.randomGetValue
+import com.excalibur.enjoylearning.kotlin.extension.randomGetValuePrint as rP
+
 //TODO kotlin中的关键字
 //TODO 107
 class Kotlin10KeywordActivity : AppCompatActivity(){
@@ -18,6 +21,11 @@ class Kotlin10KeywordActivity : AppCompatActivity(){
         aboutExtensionFunction()                //扩展函数
         aboutAnyExtensionFunction()             //对超类的扩展函数
         aboutGenericExtensionFunction()         //泛型扩展函数
+        aboutAttributesExtensionFunction()      //属性扩展
+        aboutNullableExtensionFunction()        //可空类型扩展函数
+        aboutInfix()                            //infix关键字
+        aboutExtensionFile()                    //扩展文件
+        aboutReNameExtension()                  //重命名扩展
     }
 
     private fun  aboutVararg(){
@@ -89,6 +97,53 @@ class Kotlin10KeywordActivity : AppCompatActivity(){
 
         //模仿系统let函数：
         //inline fun <I, O> I.mLet(lambda : (I) -> O) = lambda(this)
+    }
+
+    private fun aboutAttributesExtensionFunction(){
+        //String.myInfo:相当于给每一个String添加一个myInfo的属性
+        val string = "Arthur"
+        println(string.myInfo)
+
+        //扩展属性搭配扩展函数
+        string.myInfo.showInfo().showInfo().showCallTime().showCallType()
+    }
+
+    private fun  aboutNullableExtensionFunction(){
+        val value : String? = null
+        //Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type String?
+        //value.myInfo
+        println(value.myInfoNullable)
+
+        "val".printInfo("default")  //val
+        value.printInfo("default")  //default
+    }
+
+    private fun  aboutInfix(){
+        //infix:中缀表达式，可以简化代码
+        //public infix fun <A, B> A.to(that: B): Pair<A, B> = Pair(this, that)
+        mapOf("key".to("value"))
+        mapOf("key" to "value")
+
+        val p = "key".some("value")
+        val p1 = "key" some "value"
+
+        123.some("val")
+        122.6f.some(13)
+        true some 14
+        //...
+    }
+
+    private fun aboutExtensionFile(){
+        val list = listOf("1","2","3")
+        list.shuffled().first()
+        list.randomGetValue()
+    }
+
+    private fun aboutReNameExtension(){
+        val list = listOf("1","2","3")
+        list.rP()
+        //import com.excalibur.enjoylearning.kotlin.extension.randomGetValuePrint as rP
+        //list.randomGetValuePrint()
     }
 
 }
@@ -238,3 +293,17 @@ fun <T> T.showCallType() =
         is Int -> ""
         else -> ""
     }
+
+//扩展属性
+//只能被String调用
+val String.myInfo : String
+    get() = "Nagisa"
+
+//可以被String调用，也可以被String?调用
+val String?.myInfoNullable : String
+    get() = "Nagisa"
+fun String?.printInfo(default : String) = println(this ?: default)
+
+//1.自定义中缀表达式（some）要加上扩展函数（I.）一起使用
+//2.需要传递一个参数（(other : O)）以供使用
+public infix fun <I,O> I.some(other : O) : String = "$this,$other"
